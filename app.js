@@ -30,6 +30,35 @@ app.get("/", (req, res) => {
 
 // your code here!
 
+const removeIDV = (result) => {
+    return result.map(news => {
+        const { _id, __v, ...sanitizedNews } = news
+        return sanitizedNews
+    })
+}
+
+app.get('/topRankings', async (req, res) => {
+
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const people_ = JSON.parse(JSON.stringify(await Leaderboard.find().skip(offset).limit(limit)));
+    const people = removeIDV(people_);
+
+    res.send(people);
+  }
+  catch(err) {
+    console.log(err);
+    res.status(400).send({
+      status: 400,
+      message: "Failed",
+      error: err
+    })
+  }
+
+})
+
 // ==end==
 
 module.exports = { app, db };
